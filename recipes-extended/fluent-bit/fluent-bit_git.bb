@@ -17,8 +17,8 @@ SRC_URI = "\
            file://fluent-bit.conf \
            file://emmc-health \
            "
-SRCREV = "2555bd45d2060c519fb278640da737ab2f31f7ea"
-PV = "2.2.1+git${SRCPV}"
+SRCREV = "be238e162cf97669fa3be3bfb6c7830a8dc6ce9d"
+PV = "2.2.3+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 

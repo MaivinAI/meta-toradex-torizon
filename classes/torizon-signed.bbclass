@@ -1,7 +1,5 @@
-# TorizonCore configuration for signed images
-
-# inherit class to sign BSP related images
-inherit tdx-signed
-
-# globally enable signing of operating system images
-DISTROOVERRIDES:append = ":torizon-signed"
+python() {
+    bb.fatal("The rootfs protection provided by torizon-signed requires "
+             "Torizon OS 7 or newer (i.e. the torizon-signed class "
+             "functionality is not available on kirkstone).")
+}

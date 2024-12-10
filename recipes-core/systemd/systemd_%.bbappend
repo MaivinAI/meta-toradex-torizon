@@ -5,7 +5,9 @@ ALTERNATIVE_PRIORITY[resolv-conf] = "300"
 SRC_URI:append = " \
     file://0001-tmpfiles-tmp.conf-reduce-cleanup-age-to-half.patch \
     file://0002-systemd-networkd-wait-online.service.in-use-any-by-d.patch \
+    file://0003-emergency-rescue.service.in-Use-torizon-specific-scr.patch \
     file://systemd-timesyncd-update.service \
+    file://torizon-recover \
 "
 
 SRC_URI:append:genericx86-64 = " file://0001-rules-whitelist-hd-devices.patch"
@@ -15,6 +17,7 @@ RRECOMMENDS:${PN}:remove = "os-release"
 
 # /var is expected to be rw, so drop volatile-binds service files
 RDEPENDS:${PN}:remove = "volatile-binds"
+RDEPENDS:${PN} += "bash"
 
 DEF_FALLBACK_NTP_SERVERS="time.cloudflare.com time1.google.com time2.google.com time3.google.com time4.google.com"
 
@@ -53,4 +56,9 @@ do_install:append() {
     # Workaround for https://github.com/systemd/systemd/issues/11329
     install -m 0644 ${WORKDIR}/systemd-timesyncd-update.service ${D}${systemd_system_unitdir}
     ln -sf ../systemd-timesyncd-update.service ${D}${systemd_system_unitdir}/sysinit.target.wants/systemd-timesyncd-update.service
+
+    # The default SaveIntervalSec (60 secs) is too frequent, change to 1 hour
+    sed -i -e "s/^.*SaveIntervalSec.*$/SaveIntervalSec=3600/" ${D}${sysconfdir}/systemd/timesyncd.conf
+
+    install -m 755 ${WORKDIR}/torizon-recover ${D}${rootlibexecdir}/systemd
 }

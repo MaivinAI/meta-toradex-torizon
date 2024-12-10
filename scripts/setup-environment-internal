@@ -96,6 +96,7 @@ fi
 
 if [ $# -gt 1 ]; then
     usage
+    echo "ERROR: too many arguments ($*). Exiting..." >&2
     return 1
 fi
 
@@ -216,11 +217,12 @@ MANIFEST_FILE="${MANIFESTS}"/../manifest.xml
 INTEGRATION_BUILD=0
 
 if [ -L "$MANIFEST_FILE" ]; then
-    if [ "$(basename `readlink -f "$MANIFEST_FILE"`)" != "default.xml" ]; then
+    if [ "$(basename `readlink -f "$MANIFEST_FILE"`)" == "integration.xml" ] ||
+       [ "$(basename `readlink -f "$MANIFEST_FILE"`)" == "next.xml" ]; then
         INTEGRATION_BUILD=1
     fi
 else
-    if ! cat $MANIFEST_FILE | grep -q "torizoncore/default.xml"; then
+    if cat $MANIFEST_FILE | grep -q "torizoncore/integration.xml\|torizoncore/next.xml"; then
         INTEGRATION_BUILD=1
     fi
 fi
@@ -274,7 +276,8 @@ EULA_ACCEPTED=""
 
 # TI does not have an EULA that needs user acceptance. So in order to avoid
 # showing NXP's EULA we just say that EULA was accepted for AM62.
-if [ "${MACHINE}" = "verdin-am62" ]; then
+# Same for QEMU and x86 variants.
+if echo "${MACHINE}" | grep -q "verdin-am62\|qemuarm64\|genericx86-64"; then
     EULA_ACCEPTED=1
 fi
 
@@ -365,7 +368,7 @@ For more information about OpenEmbedded see their website:
 
     http://www.openembedded.org/
 
-Your build environemnt has been configured with:
+Your build environment has been configured with:
 
     MACHINE = ${MACHINE}
     SDKMACHINE = ${SDKMACHINE}

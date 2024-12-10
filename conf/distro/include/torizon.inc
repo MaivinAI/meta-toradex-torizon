@@ -18,6 +18,9 @@ IMX_DEFAULT_BSP:upstream = "mainline"
 SDK_NAME_PREFIX = "${DISTRO}"
 SDK_VERSION = "${DISTRO_VERSION}"
 
+# Override shared by all torizon distros
+DISTROOVERRIDES .= ":torizon-distro"
+
 # TorizonCore machine specific overrides
 INHERIT += "torizon"
 
@@ -72,6 +75,7 @@ BBMASK += " \
     /meta-freescale/recipes-graphics/cairo \
     /openembedded-core/meta/recipes-devtools/cargo \
     /openembedded-core/meta/recipes-devtools/rust \
+    /openembedded-core/meta/recipes-devtools/go \
 "
 
 # machines where TorizonCore is experimental
@@ -91,20 +95,23 @@ PREFERRED_RPROVIDER_aktualizr-shared-prov = "aktualizr-torizon"
 # disable warning message from meta-security
 SKIP_META_SECURITY_SANITY_CHECK = "1"
 
-GOVERSION ?= "1.20%"
+GOVERSION ?= "1.22%"
 
 # Rust toolchain preferred versions:
-RUSTVERSION ?= "1.70%"
+RUSTVERSION ?= "1.79%"
 
-CURLVERSION ?= "8.4.0"
+CURLVERSION ?= "8.10.1"
 
-PREFERRED_VERSION_cargo ?= "${RUSTVERSION}"
-PREFERRED_VERSION_cargo-native ?= "${RUSTVERSION}"
-PREFERRED_VERSION_libstd-rs ?= "${RUSTVERSION}"
-PREFERRED_VERSION_rust ?= "${RUSTVERSION}"
-PREFERRED_VERSION_rust-cross-${TARGET_ARCH} ?= "${RUSTVERSION}"
-PREFERRED_VERSION_rust-llvm ?= "${RUSTVERSION}"
-PREFERRED_VERSION_rust-llvm-native ?= "${RUSTVERSION}"
-PREFERRED_VERSION_rust-native ?= "${RUSTVERSION}"
 PREFERRED_VERSION_curl ?= "${CURLVERSION}"
 PREFERRED_VERSION_libcurl ?= "${CURLVERSION}"
+
+# Configure the "kernel command-line protection" for Torizon OS (relevant when
+# the tdx-signed class is in use).
+TOS_SECBOOT_REQUIRED_BOOTARGS_COMMON ?= "root=LABEL=otaroot rootfstype=ext4 ${OSTREE_KERNEL_ARGS}"
+TOS_SECBOOT_REQUIRED_BOOTARGS ?= "${TOS_SECBOOT_REQUIRED_BOOTARGS_COMMON}"
+TOS_SECBOOT_REQUIRED_BOOTARGS:apalis-imx6 ?= "enable_wait_mode=off vmalloc=400M ${TOS_SECBOOT_REQUIRED_BOOTARGS_COMMON}"
+TOS_SECBOOT_REQUIRED_BOOTARGS:colibri-imx6 ?= "enable_wait_mode=off galcore.contiguousSize=50331648 ${TOS_SECBOOT_REQUIRED_BOOTARGS_COMMON}"
+TOS_SECBOOT_REQUIRED_BOOTARGS:colibri-imx6ull-emmc ?= "user_debug=30 ${TOS_SECBOOT_REQUIRED_BOOTARGS_COMMON}"
+TOS_SECBOOT_REQUIRED_BOOTARGS:qemuarm64 ?= ""
+# Override BSP configuration:
+TDX_SECBOOT_REQUIRED_BOOTARGS:tdx-signed = "${TOS_SECBOOT_REQUIRED_BOOTARGS}"

@@ -24,6 +24,7 @@ SPLASH = "plymouth"
 
 # Base packages
 CORE_IMAGE_BASE_INSTALL:append = " \
+    alsa-ucm-conf-tdx \
     cpufrequtils \
     curl \
     ethtool \
@@ -77,6 +78,14 @@ CORE_IMAGE_BASE_INSTALL:append:mx8-nxp-bsp = " \
     kernel-module-imx-gpu-viv \
 "
 
+CORE_IMAGE_BASE_INSTALL:append:verdin-am62 = " \
+    ti-img-rogue-driver \
+"
+
+CORE_IMAGE_BASE_INSTALL:append:mx8mp-nxp-bsp = " \
+    kernel-module-isp-vvcam \
+"
+
 nss_altfiles_set_users_groups () {
 	# Make a temporary directory to be used by pseudo to find the real /etc/passwd,/etc/group
 	pseudo_dir=${WORKDIR}/pseudo-rootfs${sysconfdir}
@@ -108,8 +117,3 @@ PSEUDO_PASSWD:prepend = "${@bb.utils.contains('DISTRO_FEATURES', 'stateless-syst
 # due to limited hardware resources, remove Colibri iMX6 Solo 256MB
 # from the list of supported IDs in the Tezi image
 TORADEX_PRODUCT_IDS:remove:colibri-imx6 = "0014 0016"
-
-CORE_IMAGE_BASE_INSTALL:append:torizon-signed = "\
-    fsverity-utils \
-    kernel-module-composefs \
-"
